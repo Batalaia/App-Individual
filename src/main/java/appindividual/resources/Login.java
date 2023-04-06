@@ -63,7 +63,7 @@ public class Login {
         .set("username", token.username)
         .set("creation_data", token.creationData)
         .set("expiration_data", token.expirationData)
-        .set("role", "USER")
+        .set("role", user.getString("role"))
         .build();
         datastore.put(uTokens);
         LOG.fine("User: " + data.username + " Logged in.");
