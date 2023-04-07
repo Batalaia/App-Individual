@@ -3,13 +3,10 @@ package appindividual.resources;
 
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -21,6 +18,7 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.PathElement;
+import com.google.gson.Gson;
 
 import appindividual.util.AuthToken;
 import appindividual.util.LoginData;
@@ -36,13 +34,15 @@ public class Login {
 
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
+    private final Gson g = new Gson();
+
     public Login() {}
 
     @POST
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response login(LoginData data, @Context HttpServletRequest request, @Context HttpHeaders headers) {
+    public Response login(LoginData data) {
         LOG.fine("Attempt to login user:" + data.username);
         if (data.nullComp()) return Response.status(Status.BAD_REQUEST).build();
         Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
@@ -55,7 +55,7 @@ public class Login {
         do {
             token = new AuthToken(data.username);
             tknsKey = datastore.newKeyFactory().addAncestor(PathElement.of("User", data.username))
-                                .setKind("UserTokens").newKey(token.tokenID);
+                                .setKind("LoginTokens").newKey(token.tokenID);
         }
         while(datastore.get(tknsKey) != null);
 
@@ -67,6 +67,6 @@ public class Login {
         .build();
         datastore.put(uTokens);
         LOG.fine("User: " + data.username + " Logged in.");
-        return Response.ok(new AuthToken(data.username)).build();
+        return Response.ok(g.toJson(token)).build();
     }
 }
