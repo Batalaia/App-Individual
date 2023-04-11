@@ -7,8 +7,6 @@ import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.Transaction;
 
-import appindividual.filters.Secured;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -28,7 +26,6 @@ public class Logout {
     private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
 
     @POST
-    @Secured
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response logout(@Context HttpServletRequest request) {
