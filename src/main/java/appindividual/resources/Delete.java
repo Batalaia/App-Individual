@@ -4,7 +4,9 @@ import com.google.cloud.datastore.*;
 
 import appindividual.filters.Secured;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -20,33 +22,32 @@ public class Delete {
 
     @DELETE
     @Secured
-    @Path("{id}")
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response deleteUser(@PathParam("id") String id, @FormParam("username") String username) {
+    public Response deleteUser(@Context HttpServletRequest request) {
+        String id = request.getHeader("Authorization");
+        String username = request.getHeader("Username");
         LOG.fine("Attempt to delete user: " + username);
         Transaction txn = datastore.newTransaction();
         try{
-            Key userKey = tokenKeyFactory.newKey(id);
+            id = id.substring("Bearer".length()).trim();
+            Key tokenKey = tokenKeyFactory.newKey(id);
             Key delKey = datastore.newKeyFactory().setKind("User").newKey(username);
-            Entity token = txn.get(userKey);
+            Entity token = txn.get(tokenKey);
             Entity del = txn.get(delKey);
-            if(token == null || del == null){
-                txn.rollback();
-                return Response.status(Status.BAD_REQUEST).entity("Error: Try again later").build();
-            }
 
             String delRole = del.getString("role");
             switch (token.getString("role")){
-                case "User":
+                case "USER":
                     if(!token.getString("username").equals(username))
                         return Response.status(Status.BAD_REQUEST).entity("Error: Don't have permissions").build();
                     break;
                 case "GBO":
-                    if(!delRole.equals("User"))
+                    if(!delRole.equals("USER"))
                         return Response.status(Status.BAD_REQUEST).entity("Error: Don't have permissions").build();
                     break;
                 case "GS":
-                    if(!delRole.equals("User") && !delRole.equals("GBO"))
+                    if(!delRole.equals("USER") && !delRole.equals("GBO"))
                         return Response.status(Status.BAD_REQUEST).entity("Error: Don't have permissions").build();
                     break;
                 case "SU":

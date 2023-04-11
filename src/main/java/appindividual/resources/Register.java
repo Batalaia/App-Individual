@@ -14,6 +14,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Transaction;
 import com.google.cloud.datastore.Entity;
 
@@ -50,7 +51,12 @@ public class Register {
                             .set("name", user.name)
                             .set("role", "USER")
                             .set("active", false)
-                            .set("public", false).build();
+                            .set("public", false)
+                            .set("phone", user.phone)
+                            .set("workplace", user.workplace)
+                            .set("address", user.address)
+                            .set("occupation", user.occupation)
+                            .set("NIF", user.NIF).build();
                 txn.add(newUser);
                 LOG.info("User " + user.username + " Registered.");
                 txn.commit();

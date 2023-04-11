@@ -4,12 +4,11 @@
   
   <groupId>appindividual</groupId>
   <artifactId>appindividual</artifactId>
-  <version>1</version>
+  <version>0.0.1</version>
   <packaging>war</packaging>
 
   <name>App Individual ADC 2023</name>
   <description>ADC 2023 Individual Application</description>
-  <url>http://www.appindividual.adc.com</url>
 
   <properties>
 		<appengine.maven.plugin.version>2.4.0</appengine.maven.plugin.version>

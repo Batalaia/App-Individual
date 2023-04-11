@@ -1,70 +1,103 @@
 package appindividual.resources;
 
-import java.util.logging.Logger;
+import com.google.cloud.datastore.*;
+import com.google.gson.Gson;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import appindividual.filters.Secured;
+
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
 
-import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
-import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.ProjectionEntity;
-import com.google.cloud.datastore.Query;
-import com.google.cloud.datastore.QueryResults;
-import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
-import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+
 @Path("/list")
 public class ListUsers {
-    private static final Logger LOG = Logger.getLogger(Login.class.getName());
+    private static final Logger LOG = Logger.getLogger(ListUsers.class.getName());
+    private static final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+    private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("LoginTokens");
+    private final Gson g = new Gson();
+    public ListUsers() {
+    }
 
-    private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-
-    public ListUsers() {}
-
-    @POST
-    @Path("/{token}")
+    @GET
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response list(@PathParam ("token") String tokenID) {
-        LOG.fine("Attempt to list Users.");
-        Key tokenKey = datastore.newKeyFactory().setKind("LoginTokens").newKey(tokenID);
-        Entity token = datastore.get(tokenKey);
-        if(token == null) return Response.ok(Status.BAD_REQUEST).entity("Not a valid Login.").build();
-        String role = token.getString("role");
-        if(role == "USER"){
-            Query<ProjectionEntity> query = Query.newProjectionEntityQueryBuilder().setKind("User")
-                        .setProjection("username", "name", "email")
-                        .setFilter(CompositeFilter.and(PropertyFilter.eq("role", "USER")
-                        , PropertyFilter.eq("public", true)
-                        , PropertyFilter.eq("active", true)))
-                        .build();
-            QueryResults<ProjectionEntity> users = datastore.run(query);
-            return Response.ok(users).build();
+    public Response listUsers(@Context HttpServletRequest request) {
+        String id = request.getHeader("Authorization");
+        LOG.fine("Attempt to list users");
+        Transaction txn = datastore.newTransaction();
+        if (id == null || !id.startsWith("Bearer ")) {
+            return Response.status(Status.UNAUTHORIZED).build();
         }
-        else if(role == "GBO") {
-            Query<Entity> query = Query.newEntityQueryBuilder().setKind("User")
-                        .setFilter(PropertyFilter.eq("role", "USER")).build();
-            QueryResults<Entity> users = datastore.run(query);
-            return Response.ok(users).build();
-        }
-        else if(role == "GS") {
-            Query<Entity> query = Query.newEntityQueryBuilder().setKind("User")
-                        .setFilter(PropertyFilter.eq("role", role)).build();
-            QueryResults<Entity> users = datastore.run(query);
-            return Response.ok(users).build();        
-        }
-        else {
-            Query<Entity> query = Query.newEntityQueryBuilder().setKind("User")
-                        .setFilter(PropertyFilter.eq("role", role)).build();
-            QueryResults<Entity> users = datastore.run(query);
-            return Response.ok(users).build();
+        try {
+            id = id.substring("Bearer".length()).trim();
+            Key tokenKey = tokenKeyFactory.newKey(id);
+            Entity token = txn.get(tokenKey);
+
+            Query<Entity> query;
+            QueryResults<Entity> results;
+            List<Entity> list;
+            switch (token.getString("role")) {
+                case "USER":
+                    query = Query.newEntityQueryBuilder()
+                            .setKind("User")
+                            .setFilter(
+                                    CompositeFilter.and(
+                                            PropertyFilter.eq("role", "USER"),
+                                            PropertyFilter.eq("active", true),
+                                            PropertyFilter.eq("public", true)
+                                    )
+                            ).build();
+                    break;
+                case "GBO":
+                    query = Query.newEntityQueryBuilder()
+                            .setKind("User")
+                            .setFilter(
+                                    PropertyFilter.eq("role", "USER")
+                            ).build();
+                    break;
+                case "GS":
+                    List<Value<String>> l = new ArrayList<>();
+                    l.add(StringValue.of("USER"));
+                    l.add(StringValue.of("GBO"));
+
+                    ListValue listValue = ListValue.newBuilder().set(l)
+                            .build();
+                    query = Query.newEntityQueryBuilder()
+                            .setKind("User")
+                            .setFilter(
+                                    PropertyFilter.in("role", listValue)
+                            ).build();
+                    break;
+                case "SU":
+                    query = Query.newEntityQueryBuilder()
+                            .setKind("User")
+                            .build();
+                    break;
+                default:
+                    return Response.status(Status.BAD_REQUEST).entity("Error: Try again later").build();
+            }
+            results = datastore.run(query);
+            list = new ArrayList<>();
+            results.forEachRemaining(list::add);
+            return Response.ok(g.toJson(list)).build();
+        } catch (Exception e) {
+            txn.rollback();
+            LOG.severe(e.getMessage());
+            return Response.status(Status.FORBIDDEN).entity(e.getMessage()).build();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
         }
     }
 }

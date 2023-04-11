@@ -28,7 +28,7 @@ public class Logout {
 
     @POST
     @Secured
-    @Path("{id}")
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response logout(@PathParam("id") String id) {
         Key tokenKey = tokenKeyFactory.newKey(id);

@@ -11,15 +11,29 @@ public class UserData {
     public String confPassword;
     public String email;
     public String name;
+    public String phone;
+    public String workplace;
+    public String address;
+    public String occupation;
+    public String NIF;
+    public String privacy;
 
     public UserData() {}
 
-    public UserData(String username, String password, String confPassword, String email, String name) {
+    public UserData(String username, String email, String name, String password, String confirmation,
+                    String privacy, String phone, String workplace, String address, String occupation,
+                    String NIF) {
         this.username = username;
         this.password = password;
-        this.confPassword = confPassword;
-        this.email = email;
+        this.confPassword = confirmation;
+        this.email=email;
         this.name = name;
+        this.privacy=privacy;
+        this.phone = phone;
+        this.workplace = workplace;
+        this.address = address;
+        this.occupation= occupation;
+        this.NIF = NIF;
     }
 
     public boolean nullComp() {
@@ -51,7 +65,7 @@ public class UserData {
             return Response.status(Status.NOT_ACCEPTABLE)
                     .entity("Password must have at least 1 digit character").build();
         String[] emailCheck = email.split("@");
-        if(emailCheck.length != 2 || emailCheck[1] == "")
+        if(emailCheck.length != 2 || emailCheck[1] == "" || emailCheck[1].split(".").length < 2)
             return Response.status(Status.NOT_ACCEPTABLE)
                     .entity("Email must be in format <String>@<String>...<dom>.").build();
         return Response.ok().entity("Data is valid.").build();

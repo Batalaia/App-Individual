@@ -33,7 +33,7 @@ public class Login {
     private static final Logger LOG = Logger.getLogger(Login.class.getName());
 
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-
+    
     private final Gson g = new Gson();
 
     public Login() {}
@@ -42,7 +42,7 @@ public class Login {
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    public Response login(LoginData data) {
+    public Response doLogin(LoginData data) {
         LOG.fine("Attempt to login user:" + data.username);
         if (data.nullComp()) return Response.status(Status.BAD_REQUEST).build();
         Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
@@ -54,8 +54,7 @@ public class Login {
         Key tknsKey;
         do {
             token = new AuthToken(data.username);
-            tknsKey = datastore.newKeyFactory().addAncestor(PathElement.of("User", data.username))
-                                .setKind("LoginTokens").newKey(token.tokenID);
+            tknsKey = datastore.newKeyFactory().setKind("LoginTokens").newKey(token.tokenID);
         }
         while(datastore.get(tknsKey) != null);
 
