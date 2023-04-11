@@ -3,11 +3,11 @@ package appindividual.resources;
 import com.google.cloud.datastore.*;
 import com.google.cloud.datastore.Entity.Builder;
 
-import appindividual.filters.Secured;
-
 import org.apache.commons.codec.digest.DigestUtils;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -26,40 +26,37 @@ public class Update {
     }
 
     @PUT
-    @Secured
     @Path("/updateUser")
-    public Response updateUser(@QueryParam("id") String id,
-                                @QueryParam("username") String username,
-                                @QueryParam("attribute") String attribute,
-                                @FormParam("change") String change) {
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response updateUser(@Context HttpServletRequest request) {
+        String id = request.getHeader("Authorization");
+        id = id.substring("Bearer".length()).trim();
+        String username = request.getHeader("Username");
+        String attribute = request.getHeader("Attribute");
+        String change = request.getHeader("Change");
         Transaction txn = datastore.newTransaction();
         try{
             Key tokenKey = tokenKeyFactory.newKey(id);
             Entity token = datastore.get(tokenKey);
-            boolean changesForHimself = false;
-            Entity user = datastore.get(datastore.newKeyFactory().setKind("User").newKey(token.getString("username")));
-            if(username.equals(token.getString("username"))) {
-                changesForHimself = true;
+            if(token == null) {
+                txn.rollback();
+                return Response.ok(Status.BAD_REQUEST).entity("Not a valid Login.").build();
             }
             Entity userToUpdate = datastore.get(datastore.newKeyFactory().setKind("User").newKey(username));
             if(userToUpdate == null) {
                 txn.rollback();
-                return Response.status(Response.Status.BAD_REQUEST).entity("Error: Try again later").build();
+                return Response.status(Status.BAD_REQUEST).entity("Error: Try again later").build();
             }
-            LOG.fine("Attempt to update user: " + userToUpdate.getString("username"));
-            if(attribute.equals("username")) {
+            LOG.fine("Attempt to update user: " + username);
+            if(attribute.equals("username") || attribute.equals("password")) {
                 txn.rollback();
-                return Response.status(Status.BAD_REQUEST).entity("Cannot change an Username").build();
+                return Response.status(Status.BAD_REQUEST).entity("Cannot change attribute").build();
             }
-            if(attribute.equals("password"))
-                if(!changesForHimself) {
-                    txn.rollback();
-                    return Response.status(Status.BAD_REQUEST).entity("Cannot change another user's password").build();
-                }
+
             String delRole = userToUpdate.getString("role");
-            switch (user.getString("role")) {
+            switch (token.getString("role")) {
                 case "USER":
-                    if(!changesForHimself)
+                    if(username.equals(token.getString("username")))
                         return Response.status(Status.BAD_REQUEST).entity("Don't have permissions").build();
                     break;
                 case "GBO":
@@ -75,7 +72,7 @@ public class Update {
                         return Response.status(Status.BAD_REQUEST).entity("Error: Don't have permissions").build();
                     break;
                 default:
-                    return Response.status(Response.Status.BAD_REQUEST).entity("Error: Try again later").build();
+                    return Response.status(Status.BAD_REQUEST).entity("Error: Try again later").build();
             }
             Builder newUB = Entity.newBuilder(userToUpdate.getKey());
             Map<String, Value<?>> properties = userToUpdate.getProperties();
@@ -83,17 +80,18 @@ public class Update {
                 if(att.equals(attribute)) {
                     newUB.set(attribute, change);
                 } else {
-                    newUB.set(attribute, (Value<?>) user.getValue(attribute));
+                    newUB.set(att, userToUpdate.getString(att));
                 }
             }
             Entity newU = newUB.build();
             datastore.update(newU);
+            txn.commit();
             LOG.fine("User updated: " + username);
             return Response.ok().build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());
-            return Response.status(Status.FORBIDDEN).build();
+            return Response.status(Status.FORBIDDEN).entity(e.getMessage()).build();
         } finally {
             if (txn.isActive()) {
                 txn.rollback();
@@ -126,10 +124,13 @@ public class Update {
     @PUT
     @Path("/updatePwd")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updatePwd(@QueryParam("id") String id,
-                            @FormParam("newPwd") String newPwd,
-                            @FormParam("confPwd") String confPwd) {
-
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
+    public Response updatePwd(@Context HttpServletRequest request) {
+        String id = request.getHeader("Authorization");
+        id = id.substring("Bearer".length()).trim();
+        String password = request.getHeader("Password");
+        String newPwd = request.getHeader("newPwd");
+        String confirmation = request.getHeader("Confirmation");
         Transaction txn = datastore.newTransaction();
         try {
             Key tokenKey = tokenKeyFactory.newKey(id);
@@ -141,11 +142,10 @@ public class Update {
             }
             LOG.fine("Attempt to update user: " + user.getString("username"));
 
-            String c = user.getString("password");
-            if (!c.equals(DigestUtils.sha512Hex(user.getString("password"))))
+            if (!user.getString("password").equals(DigestUtils.sha512Hex(password)))
                 return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Error: Wrong password").build();
 
-            Response pwdValidation = validPwd(newPwd, confPwd);
+            Response pwdValidation = validPwd(newPwd, confirmation);
             if(pwdValidation.getStatus() != Response.Status.OK.getStatusCode())
                 return pwdValidation;
 
@@ -155,22 +155,22 @@ public class Update {
                 if(attribute.equals("password")) {
                     newUB.set("password", newPwd);
                 } else {
-                    newUB.set(attribute, (Value<?>) user.getValue(attribute));
+                    newUB.set(attribute, user.getString(attribute));
                 }
             }
             Entity newU = newUB.build();
             datastore.update(newU);
+            txn.commit();
             LOG.fine("User updated: " + user.getString("username"));
             return Response.ok(Status.OK).build();
         } catch (Exception e) {
             txn.rollback();
             LOG.severe(e.getMessage());
-            return Response.status(Status.FORBIDDEN).build();
+            return Response.status(Status.FORBIDDEN).entity(e.getMessage()).build();
         } finally {
             if (txn.isActive()) {
                 txn.rollback();
             }
         }
-    }
-
+}
 }

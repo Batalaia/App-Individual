@@ -9,11 +9,12 @@ import com.google.cloud.datastore.Transaction;
 
 import appindividual.filters.Secured;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.logging.Logger;
@@ -28,12 +29,14 @@ public class Logout {
 
     @POST
     @Secured
-    @Path("/{id}")
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response logout(@PathParam("id") String id) {
-        Key tokenKey = tokenKeyFactory.newKey(id);
+    public Response logout(@Context HttpServletRequest request) {
+        String id = request.getHeader("Authorization");
         Transaction txn = datastore.newTransaction();
         try {
+            id = id.substring("Bearer".length()).trim();
+            Key tokenKey = tokenKeyFactory.newKey(id);
             Entity token = txn.get(tokenKey);
             if (token == null) {
                 txn.rollback();

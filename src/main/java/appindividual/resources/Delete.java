@@ -22,7 +22,7 @@ public class Delete {
 
     @DELETE
     @Secured
-    @Path("/{id}")
+    @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteUser(@Context HttpServletRequest request) {
         String id = request.getHeader("Authorization");

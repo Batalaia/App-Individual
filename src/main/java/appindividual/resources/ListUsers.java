@@ -3,8 +3,6 @@ package appindividual.resources;
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
 
-import appindividual.filters.Secured;
-
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 
@@ -35,14 +33,13 @@ public class ListUsers {
         String id = request.getHeader("Authorization");
         LOG.fine("Attempt to list users");
         Transaction txn = datastore.newTransaction();
-        if (id == null || !id.startsWith("Bearer ")) {
-            return Response.status(Status.UNAUTHORIZED).build();
-        }
         try {
             id = id.substring("Bearer".length()).trim();
             Key tokenKey = tokenKeyFactory.newKey(id);
             Entity token = txn.get(tokenKey);
-
+            if(token == null)
+                return Response.status(Status.BAD_REQUEST).entity("Error: Try again later").build();
+                
             Query<Entity> query;
             QueryResults<Entity> results;
             List<Entity> list;
