@@ -1,4 +1,6 @@
-import 'package:flutterapp/login/application/auth.dart';
+import 'dart:convert';
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -72,7 +74,28 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void logInButtonPressed(String username, String password) {
+  Future<String> sendLogin(String username, String password) async{
+    final response = await http.post(
+      Uri.https('app-individual-383210.oa.r.appspot.com', '/rest/login'),
+      headers: <String, String>{
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: jsonEncode(<String, String>{
+        'username': username,
+        'password': password
+      }),
+    );
+    return response.statusCode.toString();
+  }
 
+  void logInButtonPressed(String username, String password) async{
+    sendLogin(username, password);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return const AlertDialog(
+          );
+      },
+    );
   }
 }
