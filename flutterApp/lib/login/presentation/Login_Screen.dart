@@ -76,19 +76,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<String> sendLogin(String username, String password) async{
     final response = await http.post(
-      Uri.https('app-individual-383210.oa.r.appspot.com', '/rest/login'),
+      Uri.parse('http://app-individual-383210.oa.r.appspot.com/rest/login'),
       headers: <String, String>{
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: jsonEncode(<String, String>{
         'username': username,
-        'password': password
+        'password': password,
       }),
     );
-    return response.statusCode.toString();
+    if(response.statusCode == 200) {
+      return "ok";
+    }
+    else {
+      throw Exception(response.statusCode);
+    }
   }
 
-  void logInButtonPressed(String username, String password) async{
+  void logInButtonPressed(String username, String password){
     sendLogin(username, password);
     showDialog(
         context: context,
