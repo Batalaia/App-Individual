@@ -7,7 +7,7 @@
 	<display-name>App Individual ADC 2023</display-name>
 
 	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
+		<welcome-file>welcome.html</welcome-file>
 	</welcome-file-list>
 
 	<error-page>
