@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+  <h1>Login</h1>
+  <form id="login-form">
+    <div>
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username" required>
+    </div>
+    <div>
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password" required>
+    </div>
+    <div>
+      <button type="submit">Login</button>
+    </div>
+  </form>
+
+  <script>
+    const form = document.getElementById('login-form');
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      const username = form.elements.username.value;
+      const password = form.elements.password.value;
+
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          username,
+          password
+        })
+      });
+
+      const data = await response.json();
+
+      // Handle the login token returned by the Login.java class
+      console.log('Login Token:', data.token);
+    });
+  </script>
+</body>
+</html>
