@@ -17,11 +17,12 @@ public class UserData {
     public String occupation;
     public String NIF;
     public String privacy;
+    public String activity;
 
     public UserData() {}
 
     public UserData(String username, String email, String name, String password, String confirmation,
-                    String privacy, String phone, String workplace, String address, String occupation,
+                    String privacy, String activity, String phone, String workplace, String address, String occupation,
                     String NIF) {
         this.username = username;
         this.password = password;
@@ -29,6 +30,7 @@ public class UserData {
         this.email=email;
         this.name = name;
         this.privacy=privacy;
+        this.activity = activity;
         this.phone = phone;
         this.workplace = workplace;
         this.address = address;

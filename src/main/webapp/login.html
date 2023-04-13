@@ -27,7 +27,7 @@
       const username = form.elements.username.value;
       const password = form.elements.password.value;
 
-      const response = await fetch('/login', {
+      const response = await fetch('/rest/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -41,7 +41,13 @@
       const data = await response.json();
 
       // Handle the login token returned by the Login.java class
-      console.log('Login Token:', data.token);
+    console.log('Login Token:', data.token);
+    alert(data.body);
+    if (response.ok) {
+      window.location.href = '/app';
+      const token = data.token;
+      localStorage.setItem('token', token);
+    }
     });
   </script>
 </body>

@@ -38,7 +38,7 @@ public class ListUsers {
             Key tokenKey = tokenKeyFactory.newKey(id);
             Entity token = txn.get(tokenKey);
             if(token == null)
-                return Response.status(Status.BAD_REQUEST).entity("Error: Try again later").build();
+                return Response.status(Status.BAD_REQUEST).entity("Error: not logged in.").build();
                 
             Query<Entity> query;
             QueryResults<Entity> results;

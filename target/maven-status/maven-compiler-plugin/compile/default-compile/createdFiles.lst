@@ -1,12 +1,13 @@
+appindividual\resources\TokenValidation.class
 appindividual\util\AuthToken.class
 appindividual\filters\AuthenticationFilter.class
+appindividual\filters\Secured.class
+appindividual\resources\ListUsers.class
+appindividual\resources\Delete.class
+appindividual\resources\Update.class
 appindividual\resources\Login.class
 appindividual\resources\Logout.class
 appindividual\resources\Register.class
 appindividual\util\UserData.class
 appindividual\util\LoginData.class
-appindividual\filters\Secured.class
-appindividual\resources\ListUsers.class
 appindividual\mediaresources\servlets\MediaResourceServlet.class
-appindividual\resources\Delete.class
-appindividual\resources\Update.class

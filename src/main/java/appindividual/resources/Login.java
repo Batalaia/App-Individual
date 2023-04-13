@@ -46,7 +46,7 @@ public class Login {
         if (data.nullComp()) return Response.status(Status.BAD_REQUEST).build();
         Key userKey = datastore.newKeyFactory().setKind("User").newKey(data.username);
         Entity user = datastore.get(userKey);
-        if(user == null) return Response.status(Status.NOT_FOUND).build();
+        if(user == null) return Response.status(Status.NOT_FOUND).entity("User does not exist").build();
         if(!DigestUtils.sha512Hex(data.password).equals(user.getString("password")))
             return Response.status(Status.BAD_REQUEST).entity("Wrong Password.").build();
         AuthToken token;
