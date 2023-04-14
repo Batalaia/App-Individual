@@ -2,7 +2,9 @@ package appindividual.resources;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -22,8 +24,10 @@ public class TokenValidation {
     
     public TokenValidation() {}
 
+    @GET
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     public Response validateToken(@Context HttpServletRequest request) {
         String id = request.getHeader("Authorization");
         id = id.substring("Bearer".length()).trim();

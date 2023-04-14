@@ -28,27 +28,26 @@
       const password = form.elements.password.value;
 
       const response = await fetch('/rest/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          username,
-          password
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username,
+            password
         })
-      });
-
-      const data = await response.json();
-
-      // Handle the login token returned by the Login.java class
-    console.log('Login Token:', data.token);
-    alert(data.body);
-    if (response.ok) {
-      window.location.href = '/mainmenu.html';
-      const token = data.token;
-      localStorage.setItem('token', token);
-    }
     });
+    if (response.ok) {
+        const data = await response.json();
+        console.log('Login Token:' + data.tokenID);
+        alert(data.tokenID);
+        localStorage.setItem('token', data.tokenID);
+        console.log(localStorage.getItem('token'));
+        window.location.href = '/mainmenu.html';
+        } else {
+          console.error('Login failed: ' + response);
+        }
+  });
   </script>
 </body>
 </html>

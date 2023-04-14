@@ -18,6 +18,7 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import appindividual.util.AuthToken;
 import appindividual.util.LoginData;
@@ -65,6 +66,7 @@ public class Login {
         .build();
         datastore.put(uTokens);
         LOG.fine("User: " + data.username + " Logged in.");
-        return Response.ok(g.toJson(token)).build();
+        JsonObject tokenJson = g.toJsonTree(token).getAsJsonObject();
+        return Response.ok(g.toJson(tokenJson)).build();
     }
 }
