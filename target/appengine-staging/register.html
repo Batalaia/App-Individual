@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Register</title>
+</head>
+<body>
+  <h1>Register</h1>
+  <form id="Regist-form">
+    <div>
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+    </div>
+    <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+    </div>
+    <div>
+        <label for="confPassword">Confirm Password:</label>
+        <input type="text" id="confPassword" name="confPassword" required>
+      </div>
+    <div>
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required>
+    </div>
+    <div>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+    </div>
+    <div>
+        <label for="phone">Phone:</label>
+        <input type="text" id="phone" name="phone" >
+    </div>
+    <div>
+        <label for="workplace">Workplace:</label>
+        <input type="text" id="workplace" name="workplace" >
+    </div>
+    <div>
+        <label for="address">Address:</label>
+        <input type="text" id="address" name="address" >
+    </div>
+    <div>
+        <label for="occupation">Occupation:</label>
+        <input type="text" id="occupation" name="occupation" >
+      </div>
+    <div>
+        <label for="nif">NIF:</label>
+        <input type="text" id="nif" name="nif" >
+    </div>
+    <div>
+      <button type="submit">Regist</button>
+    </div>
+  </form>
+
+  <script>
+    const form = document.getElementById('Regist-form');
+    form.addEventListener('submit', async event => {
+    event.preventDefault();
+    const username = form.elements.username.value;
+    const password = form.elements.password.value;
+    const confPassword = form.elements.confPassword.value;
+    const email = form.elements.email.value;
+    const name = form.elements.name.value;
+    const phone = form.elements.phone.value;
+    const workplace = form.elements.workplace.value;
+    const address = form.elements.address.value;
+    const occupation = form.elements.occupation.value;
+    const nif = form.elements.nif.value;
+
+    const response = await fetch('/rest/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            username,
+            password,
+            confPassword,
+            email,
+            name,
+            phone,
+            workplace,
+            address,
+            occupation,
+            nif
+        })
+    });
+
+    const data = await response.json();
+
+    // Handle the login token returned by the Login.java class
+    console.log(data.body);
+    alert(data.body);
+    if (response.ok) {
+        window.location.href = '/login.html';
+    }
+    });
+  </script>
+</body>
+</html>

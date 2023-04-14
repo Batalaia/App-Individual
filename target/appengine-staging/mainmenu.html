@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Main Menu</title>
+    </head>
+    <body>
+        <h1>Welcome to my Individual APP!</h1>
+        <p>This page can only be accessed with a valid Login.</p>
+        <script>
+            const token = localStorage.getItem('token');
+            if (!token) {
+                // Redirect to the login page if the token is not found
+                window.location.href = '/login';
+            } else {
+                // Add the token as a header to future requests
+                fetch('/rest/tokenValidation', {
+                headers: {
+                    'Authorization': 'Bearer ${token}'
+                }
+                })
+                .then(response => {
+                if (!response.ok) {
+                    document.getElementById('not-logged-in').style.display = 'block';
+                }
+                return response.text();
+                })
+                .then(data => {
+                document.getElementById('main-menu').style.display = 'block';
+                })
+            }
+        </script>
+        <nav id="nav-menu">
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Profile</a></li>
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </nav>
+
+        <div id="not-logged-in">
+            <p>You are not logged in.</p>
+        </div>
+    </body>
+</html>

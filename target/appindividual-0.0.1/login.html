@@ -44,7 +44,7 @@
     console.log('Login Token:', data.token);
     alert(data.body);
     if (response.ok) {
-      window.location.href = '/app';
+      window.location.href = '/mainmenu.html';
       const token = data.token;
       localStorage.setItem('token', token);
     }

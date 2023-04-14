@@ -41,10 +41,10 @@
       const data = await response.json();
 
       // Handle the login token returned by the Login.java class
-    console.log('Login Token:', data.token);
-    alert(data.body);
+    console.log('Login Token:', data);
+    alert(data);
     if (response.ok) {
-      window.location.href = '/app';
+      window.location.href = '/mainmenu.html';
       const token = data.token;
       localStorage.setItem('token', token);
     }
