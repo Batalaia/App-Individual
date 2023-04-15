@@ -5,34 +5,36 @@
     </head>
     <body>
         <h1>Welcome to my Individual APP!</h1>
-        <p>This page can only be accessed with a valid Login.</p>
         <script>
             const token = localStorage.getItem('token');
             console.log(token)
-            const response = fetch('/rest/tokenValidation', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-                })
-                if(response.ok) {
-                    console.log(response)
-                    document.getElementById('main-menu').style.display = 'block';
-                }
-                else {
-                    console.log(response);
-                    document.getElementById('not-logged-in').style.display = 'block';
-                }
+            fetch('/rest/tokenValidation', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+            })
+            .then(response => {
+            if (response.ok) {
+                console.log(response);
+                document.getElementById('main-menu').style.display = 'block';
+            } else {
+                console.log(response);
+                window.location.href = '/login.html';
+            }
+            })
+            .catch(error => {
+            console.error(error);
+            });
         </script>
         <nav id="main-menu">
             <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Profile</a></li>
-                <li><a href="#">Logout</a></li>
+                <li><a href="/profile.html">Profile</a></li>
+                <li><a href="/loginDetails.html">Login Details</a></li>
+                <li><a href="/listUsers.html">List Other Users</a></li>
+                <li><a href="/update.html">Update accounts details</a></li>
+                <li><a href="/uploadImage.html">Upload a foto</a></li>
+                <li><a href="/logout.html">Logout</a></li>
             </ul>
         </nav>
-
-        <div id="not-logged-in">
-            <p>You are not logged in.</p>
-        </div>
     </body>
 </html>

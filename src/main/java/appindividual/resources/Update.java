@@ -1,7 +1,6 @@
 package appindividual.resources;
 
 import com.google.cloud.datastore.*;
-import com.google.cloud.datastore.Entity.Builder;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -12,7 +11,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -32,7 +30,7 @@ public class Update {
         String id = request.getHeader("Authorization");
         id = id.substring("Bearer".length()).trim();
         String username = request.getHeader("Username");
-        String attribute = request.getHeader("Attribute");
+        String property = request.getHeader("Property");
         String change = request.getHeader("Change");
         Transaction txn = datastore.newTransaction();
         try{
@@ -48,11 +46,13 @@ public class Update {
                 return Response.status(Status.BAD_REQUEST).entity("Error: Try again later").build();
             }
             LOG.fine("Attempt to update user: " + username);
-            if(attribute.equals("username") || attribute.equals("password")) {
+            if(property.equals("username") || property.equals("password") || property.equals("photo")) {
                 txn.rollback();
-                return Response.status(Status.BAD_REQUEST).entity("Cannot change attribute").build();
+                return Response.status(Status.BAD_REQUEST).entity("Cannot change property").build();
             }
-
+            if(property.equals("active") || property.equals("public"))
+                if(!change.equals("true") && !change.equals("false"))
+                    return Response.status(Status.BAD_REQUEST).entity("Wrong option, only valid options are true or false.").build();
             String delRole = userToUpdate.getString("role");
             switch (token.getString("role")) {
                 case "USER":
@@ -74,17 +74,10 @@ public class Update {
                 default:
                     return Response.status(Status.BAD_REQUEST).entity("Error: Try again later").build();
             }
-            Builder newUB = Entity.newBuilder(userToUpdate.getKey());
-            Map<String, Value<?>> properties = userToUpdate.getProperties();
-            for(String att: properties.keySet()) {
-                if(att.equals(attribute)) {
-                    newUB.set(attribute, change);
-                } else {
-                    newUB.set(att, userToUpdate.getString(att));
-                }
-            }
-            Entity newU = newUB.build();
-            datastore.update(newU);
+            userToUpdate = Entity.newBuilder(userToUpdate)
+                .set(property, change)
+                .build();
+            txn.update(userToUpdate);
             txn.commit();
             LOG.fine("User updated: " + username);
             return Response.ok().build();
@@ -129,7 +122,7 @@ public class Update {
         String id = request.getHeader("Authorization");
         id = id.substring("Bearer".length()).trim();
         String password = request.getHeader("Password");
-        String newPwd = request.getHeader("newPwd");
+        String newPwd = request.getHeader("NewPwd");
         String confirmation = request.getHeader("Confirmation");
         Transaction txn = datastore.newTransaction();
         try {
@@ -149,17 +142,10 @@ public class Update {
             if(pwdValidation.getStatus() != Response.Status.OK.getStatusCode())
                 return pwdValidation;
 
-            Builder newUB = Entity.newBuilder(user.getKey());
-            Map<String, Value<?>> properties = user.getProperties();
-            for(String attribute: properties.keySet()) {
-                if(attribute.equals("password")) {
-                    newUB.set("password", newPwd);
-                } else {
-                    newUB.set(attribute, user.getString(attribute));
-                }
-            }
-            Entity newU = newUB.build();
-            datastore.update(newU);
+            user = Entity.newBuilder(user)
+                .set("password", DigestUtils.sha512Hex(newPwd))
+                .build();
+            txn.update(user);
             txn.commit();
             LOG.fine("User updated: " + user.getString("username"));
             return Response.ok(Status.OK).build();

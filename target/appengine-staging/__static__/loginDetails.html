@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Login Details</title>
+</head>
+<body>
+  <h1>This are your login details</h1>
+  <ul id="login-details">
+  </ul>
+  <script>
+    const token = localStorage.getItem('token');
+    fetch('/rest/tokenValidation', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const detailsList = document.getElementById('login-details');
+        const details = document.createElement('details');
+        details.innerHTML = `TokenID: ${data.key.path[0].name} <br> Username: ${data.properties.username.value} <br> Role: ${data.properties.role.value} <br> CreationData: (${data.properties.creation_data.value}) <br> ExpirationData: (${data.properties.expiration_data.value})`;
+        detailsList.appendChild(details);
+    })
+    .catch(error => {
+        console.error(error);
+    })
+  </script>
+</body>
+</html>

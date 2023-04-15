@@ -2,7 +2,7 @@ package appindividual.resources;
 
 import com.google.cloud.datastore.*;
 import com.google.gson.Gson;
-
+import com.google.gson.JsonObject;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 
@@ -50,8 +50,8 @@ public class ListUsers {
                             .setFilter(
                                     CompositeFilter.and(
                                             PropertyFilter.eq("role", "USER"),
-                                            PropertyFilter.eq("active", true),
-                                            PropertyFilter.eq("public", true)
+                                            PropertyFilter.eq("active", "true"),
+                                            PropertyFilter.eq("public", "true")
                                     )
                             ).build();
                     break;
@@ -96,5 +96,20 @@ public class ListUsers {
                 txn.rollback();
             }
         }
+    }
+
+    @GET
+    @Path("/profile")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response getProfile(@Context HttpServletRequest request) {
+        String id = request.getHeader("Authorization");
+        id = id.substring("Bearer".length()).trim();
+        Key tokenKey = tokenKeyFactory.newKey(id);
+        Entity token = datastore.get(tokenKey);
+        if(token == null)
+            return Response.status(Status.BAD_REQUEST).entity("Error: not logged in.").build();
+        Entity user = datastore.get(datastore.newKeyFactory().setKind("User").newKey(token.getString("username")));
+        JsonObject userJson = g.toJsonTree(user).getAsJsonObject();
+        return Response.ok(g.toJson(userJson)).build();
     }
 }

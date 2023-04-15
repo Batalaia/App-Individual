@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Logout</title>
+</head>
+<body>
+  <h1>Logout</h1>
+  <p>Are you sure you want to log out?</p>
+  <form id = "logout-form">
+    <button type="submit">Logout</button>
+    <a href="/mainmenu.html" class="button">Back</a>
+  </form>
+  <script>
+    const form = document.getElementById('logout-form');
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      localStorage.removeItem('token');
+      window.location.href = '/login.html';
+    });
+    const token = localStorage.getItem('token');
+    console.log(token)
+    fetch('/rest/logout', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+        })
+        .then(response => {
+            if(!response.ok)
+                console.log(response);
+        })
+        .catch(error => {
+            console.error(error);
+        });
+  </script>
+</body>
+</html>

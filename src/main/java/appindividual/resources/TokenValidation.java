@@ -15,12 +15,15 @@ import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.KeyFactory;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 @Path("/tokenValidation")
 public class TokenValidation {
 
     private final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
     private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("LoginTokens");
+    private final Gson g = new Gson();
     
     public TokenValidation() {}
 
@@ -35,8 +38,10 @@ public class TokenValidation {
         Entity token = datastore.get(tokenKey);
         if(token == null)
             return Response.status(Status.BAD_REQUEST).entity("Error: not a valid Login.").build();
-        else
-            return Response.ok().entity(token).build();
+        else {
+            JsonObject tokenJson = g.toJsonTree(token).getAsJsonObject();
+            return Response.ok(g.toJson(tokenJson)).build();
+        }
     }
 }
 

@@ -17,6 +17,7 @@
     </div>
     <div>
       <button type="submit">Login</button>
+      <a href="/register.html" class="button">Regist new user</a>
     </div>
   </form>
 
@@ -45,7 +46,8 @@
         console.log(localStorage.getItem('token'));
         window.location.href = '/mainmenu.html';
         } else {
-          console.error('Login failed: ' + response);
+          alert(response.body);
+          console.error('Login failed: ' + response.body);
         }
   });
   </script>

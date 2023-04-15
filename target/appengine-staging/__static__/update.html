@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Update User Details</title>
+</head>
+<body>
+  <h1>Update User Details</h1>
+  
+  <!-- Option 1: Update a property for a given user -->
+  <h2>Update a Property</h2>
+  <form id="update-property-form">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username"><br><br>
+    
+    <label for="property">Property:</label>
+    <select id="property" name="property">
+      <option value="name">Name</option>
+      <option value="email">Email</option>
+      <option value="workspace">Workspace</option>
+      <option value="address">Address</option>
+      <option value="occupation">Occupation</option>
+      <option value="NIF">NIF</option>
+      <option value="privacy">Privacy</option>
+      <option value="activity">Activity</option>
+    </select><br><br>
+    
+    <label for="value">New Value:</label>
+    <input type="text" id="value" name="value"><br><br>
+    
+    <button type="submit">Update Property</button>
+  </form>
+  
+  <!-- Option 2: Update the user's password -->
+  <h2>Update Password</h2>
+  <form id="update-password-form">
+    <label for="new-password">Old Password:</label>
+    <input type="password" id="old-password" name="old-password"><br><br>
+
+    <label for="new-password">New Password:</label>
+    <input type="password" id="new-password" name="new-password"><br><br>
+    
+    <label for="confirm-password">Confirm Password:</label>
+    <input type="password" id="confirm-password" name="confirm-password"><br><br>
+    
+    <button type="submit">Update Password</button>
+  </form>
+  
+  <script>
+    // Option 1: Update a property for a given user
+    const updatePropertyForm = document.getElementById('update-property-form');
+    const token = localStorage.getItem('token');
+    console.log(token)
+    updatePropertyForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const username = updatePropertyForm.elements.username.value;
+      const property = updatePropertyForm.elements.property.value;
+      const value = updatePropertyForm.elements.value.value;
+      fetch('/rest/update/updateUser', {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Username': username,
+            'Property': property,
+            'Change': value
+        }
+      })
+      .then(response => console.log(response))
+    });
+    
+    // Option 2: Update the user's password
+    const updatePasswordForm = document.getElementById('update-password-form');
+    updatePasswordForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const oldPassword = updatePasswordForm.elements['old-password'].value;
+      const newPassword = updatePasswordForm.elements['new-password'].value;
+      const confirmPassword = updatePasswordForm.elements['confirm-password'].value;
+      if (newPassword !== confirmPassword) {
+        return alert("Passwords are not the same!");
+      }
+      fetch('/rest/update/updatePwd', {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Password': oldPassword,
+            'NewPwd': newPassword,
+            'Confirmation': confirmPassword
+        }
+      })
+      .then(response => console.log(response))
+    });
+  </script>
+</body>
+</html>

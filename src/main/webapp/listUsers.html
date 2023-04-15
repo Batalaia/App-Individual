@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>List of Users</title>
+</head>
+<body>
+  <h1>List of Users registered in this App</h1>
+  <ul id="data-list">
+  </ul>
+  <script>
+    const token = localStorage.getItem('token');
+    fetch('/rest/list', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        const dataList = document.getElementById('data-list');
+        data.forEach(item => {
+            const list = document.createElement('list');
+            list.innerHTML = `Username: ${item.key.path[0].name} <br> Name: ${item.properties.name.value} <br> Email: (${item.properties.email.value}) <br><br>`;
+            dataList.appendChild(list);
+        });
+    })
+    .catch(error => {
+        console.error(error);
+    })
+  </script>
+</body>
+</html>

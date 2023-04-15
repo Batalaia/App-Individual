@@ -46,6 +46,14 @@ public class UserData {
         return word == "" || word == null;
     }
 
+    public boolean emailValid() {
+        String[] e = email.split("@");
+        if(e.length != 2 || e[1].equals("")) return false;
+        String domain = e[1];
+        String[] d = domain.split("\\.");
+        return !checkNull(d[d.length-1]);
+    }
+
     public Response validData() {
         if(nullComp()) return Response.status(Status.BAD_REQUEST).entity("Please fill all the inputs.").build();
         Pattern specialChars = Pattern.compile("[^a-z0-9 ]", Pattern.CASE_INSENSITIVE);
@@ -66,8 +74,7 @@ public class UserData {
         if(!digitChars.matcher(password).find())
             return Response.status(Status.NOT_ACCEPTABLE)
                     .entity("Password must have at least 1 digit character").build();
-        String[] emailCheck = email.split("@");
-        if(emailCheck.length != 2 || emailCheck[1] == "" || emailCheck[1].split(".").length < 2)
+        if(!emailValid())
             return Response.status(Status.NOT_ACCEPTABLE)
                     .entity("Email must be in format <String>@<String>...<dom>.").build();
         return Response.ok().entity("Data is valid.").build();

@@ -5,7 +5,6 @@
     </head>
     <body>
         <h1>Welcome to my Individual APP!</h1>
-        <p>This page can only be accessed with a valid Login.</p>
         <script>
             const token = localStorage.getItem('token');
             console.log(token)
@@ -29,9 +28,12 @@
         </script>
         <nav id="main-menu">
             <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Profile</a></li>
-                <li><a href="#">Logout</a></li>
+                <li><a href="/profile.html">Profile</a></li>
+                <li><a href="/loginDetails.html">Login Details</a></li>
+                <li><a href="/listUsers.html">List Other Users</a></li>
+                <li><a href="/update.html">Update accounts details</a></li>
+                <li><a href="/uploadImage.html">Upload a foto</a></li>
+                <li><a href="/logout.html">Logout</a></li>
             </ul>
         </nav>
     </body>

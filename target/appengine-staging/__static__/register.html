@@ -17,7 +17,7 @@
     </div>
     <div>
         <label for="confPassword">Confirm Password:</label>
-        <input type="text" id="confPassword" name="confPassword" required>
+        <input type="password" id="confPassword" name="confPassword" required>
       </div>
     <div>
         <label for="email">Email:</label>
@@ -55,45 +55,47 @@
   <script>
     const form = document.getElementById('Regist-form');
     form.addEventListener('submit', async event => {
-    event.preventDefault();
-    const username = form.elements.username.value;
-    const password = form.elements.password.value;
-    const confPassword = form.elements.confPassword.value;
-    const email = form.elements.email.value;
-    const name = form.elements.name.value;
-    const phone = form.elements.phone.value;
-    const workplace = form.elements.workplace.value;
-    const address = form.elements.address.value;
-    const occupation = form.elements.occupation.value;
-    const nif = form.elements.nif.value;
+      event.preventDefault();
+      const username = form.elements.username.value;
+      const password = form.elements.password.value;
+      const confPassword = form.elements.confPassword.value;
+      const email = form.elements.email.value;
+      const name = form.elements.name.value;
+      const phone = form.elements.phone.value;
+      const workplace = form.elements.workplace.value;
+      const address = form.elements.address.value;
+      const occupation = form.elements.occupation.value;
+      const nif = form.elements.nif.value;
 
-    const response = await fetch('/rest/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            username,
-            password,
-            confPassword,
-            email,
-            name,
-            phone,
-            workplace,
-            address,
-            occupation,
-            nif
+      fetch('/rest/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              "username":username,
+              "password":password,
+              "confPassword":confPassword,
+              "email":email,
+              "name":name,
+              "phone":phone,
+              "workplace":workplace,
+              "address":address,
+              "occupation":occupation,
+              "NIF":nif
+          })
+      }).then(response => {
+        if(response.ok) {
+              console.log(response.body);
+              window.location.href = '/login.html';
+        }
+        else 
+            alert(response.body);
         })
-    });
-
-    const data = await response.json();
-
-    // Handle the login token returned by the Login.java class
-    console.log(data.body);
-    alert(data.body);
-    if (response.ok) {
-        window.location.href = '/login.html';
-    }
+        .catch(error => {
+              console.error(error);
+              window.location.href = '/login.html';
+        });
     });
   </script>
 </body>
