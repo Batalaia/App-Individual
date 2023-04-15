@@ -2,8 +2,6 @@ package appindividual.resources;
 
 import com.google.cloud.datastore.*;
 
-import appindividual.filters.Secured;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -16,24 +14,26 @@ import java.util.logging.Logger;
 public class Delete {
     private static final Logger LOG = Logger.getLogger(Delete.class.getName());
     private static final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
-    public Delete() {
-    }
+    private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("LoginTokens");
+    public Delete() {}
 
     @DELETE
-    @Secured
     @Path("/")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response deleteUser(@Context HttpServletRequest request) {
         String id = request.getHeader("Authorization");
+        id = id.substring("Bearer".length()).trim();
         String username = request.getHeader("Username");
         LOG.fine("Attempt to delete user: " + username);
         Transaction txn = datastore.newTransaction();
         try{
-            id = id.substring("Bearer".length()).trim();
             Key tokenKey = tokenKeyFactory.newKey(id);
-            Key delKey = datastore.newKeyFactory().setKind("User").newKey(username);
             Entity token = txn.get(tokenKey);
+            if(token == null) {
+                txn.rollback();
+                return Response.ok(Status.BAD_REQUEST).entity("Not a valid Login.").build();
+            }
+            Key delKey = datastore.newKeyFactory().setKind("User").newKey(username);
             Entity del = txn.get(delKey);
 
             String delRole = del.getString("role");
@@ -59,10 +59,6 @@ public class Delete {
             txn.commit();
             LOG.fine("User deleted: " + username);
             return Response.ok().build();
-        } catch (Exception e) {
-            txn.rollback();
-            LOG.severe(e.getMessage());
-            return Response.status(Status.FORBIDDEN).build();
         } finally {
             if (txn.isActive()) {
                 txn.rollback();

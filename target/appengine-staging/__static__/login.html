@@ -41,13 +41,13 @@
     if (response.ok) {
         const data = await response.json();
         console.log('Login Token:' + data.tokenID);
-        alert(data.tokenID);
         localStorage.setItem('token', data.tokenID);
         console.log(localStorage.getItem('token'));
         window.location.href = '/mainmenu.html';
         } else {
-          alert(response.body);
-          console.error('Login failed: ' + response.body);
+          response.text().then(errorMessage => {
+            alert(`Error: ${errorMessage}`);
+          });
         }
   });
   </script>

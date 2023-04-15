@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Delete User</title>
+</head>
+<body>
+  <h1>Delete User</h1>
+  
+  <form id="delete-form">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username"><br><br>
+    
+    <button type="submit">Delete User</button>
+  </form>
+  
+  <a href="/mainmenu.html" class="button">Back</a>
+  
+  <script>
+    const deleteForm = document.getElementById('delete-form');
+    const token = localStorage.getItem('token');
+    console.log(token)
+    fetch('/rest/tokenValidation', {
+          headers: {
+              'Authorization': `Bearer ${token}`
+          }
+    })
+    .then(response => {
+        if(!response.ok)
+            window.location.href = '/login.html';
+    })
+    .catch(error => {
+            console.error(error);
+    });
+    deleteForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const username = deleteForm.elements.username.value;
+        fetch('/rest/delete', {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Username': username,
+        }
+      })
+      .then(response => {
+        if (response.status == 200) {
+          alert(username + ' deleted successfully!');
+        } else {
+          response.text().then(errorMessage => {
+            alert(`Error deleting ${username}: ${errorMessage}`);
+          });
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        alert('An error occurred while deleting the ' + username + '.');
+      });
+    });
+  </script>
+</body>
+</html>

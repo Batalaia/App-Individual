@@ -10,6 +10,19 @@
   </ul>
   <script>
     const token = localStorage.getItem('token');
+    var role;
+    fetch('/rest/tokenValidation', {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        role = data.properties.role.value;
+    })
+    .catch(error => {
+        console.error(error);
+    })
     fetch('/rest/list', {
         headers: {
             'Authorization': `Bearer ${token}`
@@ -20,7 +33,10 @@
         const dataList = document.getElementById('data-list');
         data.forEach(item => {
             const list = document.createElement('list');
-            list.innerHTML = `Username: ${item.key.path[0].name} <br> Name: ${item.properties.name.value} <br> Email: (${item.properties.email.value}) <br><br>`;
+            if(role.equals("USER"))
+              list.innerHTML = `Username: ${item.key.path[0].name} <br> Name: ${item.properties.name.value} <br> Email: (${item.properties.email.value}) <br><br>`;
+            else
+              list.innerHTML = `Username: ${item.key.path[0].name} <br> Name: ${item.properties.name.value} <br> Email: (${item.properties.email.value}) <br> Email: (${item.properties.email.value}) <br> Private: (${item.properties.privacy.value}) <br> Active: (${item.properties.activity.value}) <br> Phone: (${item.properties.phone.value}) <br> Workplace: (${item.properties.workplace.value}) <br> Address: (${item.properties.address.value}) <br> Occupation: (${item.properties.occupation.value}) <br> NIF: (${item.properties.NIF.value}) <br><br>`;
             dataList.appendChild(list);
         });
     })

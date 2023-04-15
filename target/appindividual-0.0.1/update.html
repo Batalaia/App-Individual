@@ -46,6 +46,8 @@
     <button type="submit">Update Password</button>
   </form>
   
+  <a href="/mainmenu.html" class="button">Back</a>
+  
   <script>
     // Option 1: Update a property for a given user
     const updatePropertyForm = document.getElementById('update-property-form');
@@ -65,7 +67,19 @@
             'Change': value
         }
       })
-      .then(response => console.log(response))
+      .then(response => {
+        if (response.ok) {
+          alert(property + ' updated successfully!');
+        } else {
+          response.text().then(errorMessage => {
+            alert(`Error updating ${property}: ${errorMessage}`);
+          });
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        alert('An error occurred while updating the ' + property + '.');
+      });
     });
     
     // Option 2: Update the user's password
@@ -87,7 +101,19 @@
             'Confirmation': confirmPassword
         }
       })
-      .then(response => console.log(response))
+      .then(response => {
+        if (response.ok) {
+          alert('Password updated successfully!');
+        } else {
+          response.text().then(errorMessage => {
+            alert(`Error updating password: ${errorMessage}`);
+          });
+        }
+      })
+      .catch(error => {
+        console.error(error);
+        alert('An error occurred while updating the password.');
+      });
     });
   </script>
 </body>

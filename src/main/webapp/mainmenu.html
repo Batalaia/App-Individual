@@ -18,7 +18,9 @@
                 console.log(response);
                 document.getElementById('main-menu').style.display = 'block';
             } else {
-                console.log(response);
+                response.text().then(errorMessage => {
+                    alert(`Error: ${errorMessage}`);
+                });
                 window.location.href = '/login.html';
             }
             })
@@ -31,8 +33,9 @@
                 <li><a href="/profile.html">Profile</a></li>
                 <li><a href="/loginDetails.html">Login Details</a></li>
                 <li><a href="/listUsers.html">List Other Users</a></li>
-                <li><a href="/update.html">Update accounts details</a></li>
+                <li><a href="/update.html">Update an account details</a></li>
                 <li><a href="/uploadImage.html">Upload a foto</a></li>
+                <li><a href="/delete.html">Delete a User</a></li>
                 <li><a href="/logout.html">Logout</a></li>
             </ul>
         </nav>

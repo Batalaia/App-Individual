@@ -55,7 +55,8 @@ public class Register {
                             .set("workplace", user.workplace)
                             .set("address", user.address)
                             .set("occupation", user.occupation)
-                            .set("NIF", user.NIF).build();
+                            .set("NIF", user.NIF)
+                            .set("photo", "").build();
                 txn.add(newUser);
                 LOG.info("User " + user.username + " Registered.");
                 txn.commit();
