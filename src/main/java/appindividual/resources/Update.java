@@ -56,7 +56,7 @@ public class Update {
             if(property.equals("role"))
                 if(!change.equals("USER") && !change.equals("GBO") && !change.equals("GS"))
                     return Response.status(Status.BAD_REQUEST).entity("Wrong option, only valid options are USER, GBO or GS.").build();
-                else if(token.getString("role") != "SU")
+                else if(!token.getString("role").equals("SU"))
                     return Response.status(Status.BAD_REQUEST).entity("Don't have permissions").build();
             String delRole = userToUpdate.getString("role");
             switch (token.getString("role")) {
@@ -73,8 +73,6 @@ public class Update {
                         return Response.status(Status.BAD_REQUEST).entity("Error: Don't have permissions").build();
                     break;
                 case "SU":
-                    if(!username.equals(token.getString("username")) && delRole.equals("SU"))
-                        return Response.status(Status.BAD_REQUEST).entity("Error: Don't have permissions").build();
                     break;
                 default:
                     return Response.status(Status.BAD_REQUEST).entity("Error: Try again later").build();
