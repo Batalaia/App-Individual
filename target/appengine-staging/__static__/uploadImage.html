@@ -74,11 +74,9 @@
           })
           .then(response => {
               if(!response.ok){
-                  alert(response.status);
                   console.log(response);
               }
               else {
-                alert(response.body);
                 console.log(response);
                 window.location.href = '/mainmenu.html';
               }
