@@ -53,22 +53,25 @@ public class Update {
             if(property.equals("active") || property.equals("public"))
                 if(!change.equals("true") && !change.equals("false"))
                     return Response.status(Status.BAD_REQUEST).entity("Wrong option, only valid options are true or false.").build();
+            if(property.equals("role"))
+                if(!change.equals("USER") && !change.equals("GBO") && !change.equals("GA"))
+                    return Response.status(Status.BAD_REQUEST).entity("Wrong option, only valid options are USER, GBO or GA.").build();
             String delRole = userToUpdate.getString("role");
             switch (token.getString("role")) {
                 case "USER":
-                    if(username.equals(token.getString("username")))
+                    if(!username.equals(token.getString("username")) || property.equals("role"))
                         return Response.status(Status.BAD_REQUEST).entity("Don't have permissions").build();
                     break;
                 case "GBO":
-                    if(!delRole.equals("USER"))
+                    if(!delRole.equals("USER") && !username.equals(token.getString("username")))
                         return Response.status(Status.BAD_REQUEST).entity("Error: Don't have permissions").build();
                     break;
                 case "GS":
-                    if(!delRole.equals("USER") && !delRole.equals("GBO"))
+                    if(!username.equals(token.getString("username")) && !delRole.equals("USER") && !delRole.equals("GBO"))
                         return Response.status(Status.BAD_REQUEST).entity("Error: Don't have permissions").build();
                     break;
                 case "SU":
-                    if(delRole.equals("SU"))
+                    if(!username.equals(token.getString("username")) && delRole.equals("SU"))
                         return Response.status(Status.BAD_REQUEST).entity("Error: Don't have permissions").build();
                     break;
                 default:

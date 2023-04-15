@@ -33,10 +33,22 @@
         const dataList = document.getElementById('data-list');
         data.forEach(item => {
             const list = document.createElement('list');
-            if(role.equals("USER"))
-              list.innerHTML = `Username: ${item.key.path[0].name} <br> Name: ${item.properties.name.value} <br> Email: (${item.properties.email.value}) <br><br>`;
+            if(role === "USER")
+              list.innerHTML = `Username: ${item.key.path[0].name} 
+                                br> Name: ${item.properties.name.value} 
+                                <br> Email: (${item.properties.email.value}) <br><br>`;
             else
-              list.innerHTML = `Username: ${item.key.path[0].name} <br> Name: ${item.properties.name.value} <br> Email: (${item.properties.email.value}) <br> Email: (${item.properties.email.value}) <br> Private: (${item.properties.privacy.value}) <br> Active: (${item.properties.activity.value}) <br> Phone: (${item.properties.phone.value}) <br> Workplace: (${item.properties.workplace.value}) <br> Address: (${item.properties.address.value}) <br> Occupation: (${item.properties.occupation.value}) <br> NIF: (${item.properties.NIF.value}) <br><br>`;
+              list.innerHTML = `Username: ${item.key.path[0].name} 
+                                <br> Name: ${item.properties.name.value} 
+                                <br> Email: ${item.properties.email.value}
+                                <br> Role: ${item.properties.role.value}
+                                <br> Public: ${item.properties.public.value}
+                                <br> Active: ${item.properties.active.value} 
+                                <br> Phone: ${item.properties.phone.value}
+                                <br> Workplace: ${item.properties.workplace.value}
+                                <br> Address: ${item.properties.address.value}
+                                <br> Occupation: ${item.properties.occupation.value}
+                                <br> NIF: ${item.properties.NIF.value} <br><br>`;
             dataList.appendChild(list);
         });
     })
