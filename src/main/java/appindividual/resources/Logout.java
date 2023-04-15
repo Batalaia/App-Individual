@@ -23,7 +23,7 @@ public class Logout {
 
     private static final Logger LOG = Logger.getLogger(Logout.class.getName());
     private static final Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
-    private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("Token");
+    private final KeyFactory tokenKeyFactory = datastore.newKeyFactory().setKind("LoginTokens");
 
     @POST
     @Path("/")
