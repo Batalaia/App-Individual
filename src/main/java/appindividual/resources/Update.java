@@ -54,8 +54,10 @@ public class Update {
                 if(!change.equals("true") && !change.equals("false"))
                     return Response.status(Status.BAD_REQUEST).entity("Wrong option, only valid options are true or false.").build();
             if(property.equals("role"))
-                if(!change.equals("USER") && !change.equals("GBO") && !change.equals("GA"))
-                    return Response.status(Status.BAD_REQUEST).entity("Wrong option, only valid options are USER, GBO or GA.").build();
+                if(!change.equals("USER") && !change.equals("GBO") && !change.equals("GS"))
+                    return Response.status(Status.BAD_REQUEST).entity("Wrong option, only valid options are USER, GBO or GS.").build();
+                else if(token.getString("role") != "SU")
+                    return Response.status(Status.BAD_REQUEST).entity("Don't have permissions").build();
             String delRole = userToUpdate.getString("role");
             switch (token.getString("role")) {
                 case "USER":
