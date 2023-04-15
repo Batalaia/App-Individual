@@ -133,12 +133,15 @@ public class Update {
         try {
             Key tokenKey = tokenKeyFactory.newKey(id);
             Entity token = datastore.get(tokenKey);
+            if(token == null) {
+                txn.rollback();
+                return Response.ok(Status.BAD_REQUEST).entity("Not a valid Login.").build();
+            }
             Entity user = datastore.get(datastore.newKeyFactory().setKind("User").newKey(token.getString("username")));
             if(user == null) {
                 txn.rollback();
                 return Response.status(Response.Status.BAD_REQUEST).entity("Error: Try again later").build();
             }
-            LOG.fine("Attempt to update user: " + user.getString("username"));
 
             if (!user.getString("password").equals(DigestUtils.sha512Hex(password)))
                 return Response.status(Response.Status.NOT_ACCEPTABLE).entity("Error: Wrong password").build();
@@ -152,7 +155,6 @@ public class Update {
                 .build();
             txn.update(user);
             txn.commit();
-            LOG.fine("User updated: " + user.getString("username"));
             return Response.ok(Status.OK).build();
         } catch (Exception e) {
             txn.rollback();
