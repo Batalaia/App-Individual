@@ -15,24 +15,24 @@
     const form = document.getElementById('logout-form');
     form.addEventListener('submit', event => {
       event.preventDefault();
+      const token = localStorage.getItem('token');
+      console.log(token)
+      fetch('/rest/logout', {
+          method: 'POST',
+          headers: {
+              'Authorization': `Bearer ${token}`
+          }
+          })
+          .then(response => {
+              if(!response.ok)
+                  console.log(response);
+          })
+          .catch(error => {
+              console.error(error);
+          });
       localStorage.removeItem('token');
       window.location.href = '/login.html';
     });
-    const token = localStorage.getItem('token');
-    console.log(token)
-    fetch('/rest/logout', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-        })
-        .then(response => {
-            if(!response.ok)
-                console.log(response);
-        })
-        .catch(error => {
-            console.error(error);
-        });
   </script>
 </body>
 </html>

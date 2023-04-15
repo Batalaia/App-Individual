@@ -3,7 +3,7 @@ inbound_services:
 - warmup
 auto_id_policy: default
 beta_settings:
-  'source_reference': 'https://github.com/Batalaia/App-Individual.git#c09d47fe48aa4b0e961638b0b324bcf6543e0685'
+  'source_reference': 'https://github.com/Batalaia/App-Individual.git#770f949b1f9e40f83f7a980b339d1781e0c6fc3c'
 handlers:
 - url: (/.*/)
   static_files: __static__\1welcome.html

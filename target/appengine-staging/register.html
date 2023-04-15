@@ -91,7 +91,9 @@
               window.location.href = '/login.html';
         }
         else 
-            alert(response.body);
+          response.text().then(errorMessage => {
+              alert(`Error updating ${property}: ${errorMessage}`);
+            });
         })
         .catch(error => {
               console.error(error);
