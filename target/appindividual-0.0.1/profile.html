@@ -32,6 +32,7 @@
         .then(response => response.json())
         .then(data => {
             const photo = data.properties.photo.value;
+            const imgElement = document.getElementById('img');
             if(photo == null || photo == "") {
                 console.log("NO PHOTO AVAILABLE");
             } else {
@@ -44,7 +45,7 @@
                         var imageUrl = URL.createObjectURL(blob);
                         var img = document.createElement('img');
                         img.src = imageUrl;
-                        document.body.appendChild(img);
+                        imgElement.src = imageUrl;
                     } else {
                         console.log('Image load error');
                     }
